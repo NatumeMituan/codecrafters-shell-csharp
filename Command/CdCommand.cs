@@ -6,8 +6,9 @@ internal class CdCommand(string[] args) : ICommand
     {
         if (args.Length > 0)
         {
-            var path = args[0];
-            if (path.StartsWith('/') && Directory.Exists(path))
+            var path = Path.GetFullPath(args[0]);
+
+            if (Directory.Exists(path))
             {
                 Environment.CurrentDirectory = path;
             }
