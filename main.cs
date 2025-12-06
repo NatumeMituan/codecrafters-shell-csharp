@@ -8,7 +8,10 @@ class Program
         {
             Console.Write("$ ");
             var input = Console.ReadLine();
-            CommandParser.Parse(input)?.Execute();
+            if (!string.IsNullOrEmpty(input))
+            {
+                CommandParser.Parse(input)?.Execute();
+            }
         }
     }
 }
