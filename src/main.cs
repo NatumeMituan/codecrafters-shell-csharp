@@ -5,8 +5,9 @@ class Program
     private const string Echo = "echo";
     private const string Exit = "exit";
     private const string Type = "type";
+    private const string Pwd = "pwd";
 
-    private static readonly HashSet<string> BuiltInCommands = [Echo, Exit, Type];
+    private static readonly HashSet<string> BuiltInCommands = [Echo, Exit, Type, Pwd];
 
     public static void Main()
     {
@@ -32,6 +33,9 @@ class Program
                     break;
                 case Type:
                     ExecuteType(inputs[1..]);
+                    break;
+                case Pwd:
+                    ExecutePwd();
                     break;
                 default:
                     ExecuteExternalProgram(inputs[0], inputs[1..]);
@@ -65,6 +69,12 @@ class Program
         }
     }
 
+    private static void ExecutePwd()
+    {
+        var output = Environment.CurrentDirectory;
+        Console.WriteLine(output);
+    }
+
     private static void ExecuteExternalProgram(string command, string[] args)
     {
         if (IsInPath(command, out _))
@@ -76,7 +86,6 @@ class Program
             Console.WriteLine($"{command}: command not found");
         }
     }
-
 
     private static bool IsInPath(string executable, out string fullPath)
     {
