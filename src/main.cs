@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 class Program
 {
     private const string Echo = "echo";
@@ -32,7 +34,7 @@ class Program
                     ExecuteType(inputs[1..]);
                     break;
                 default:
-                    Console.WriteLine($"{command}: command not found");
+                    ExecuteExternalProgram(inputs[0], inputs[1..]);
                     break;
             }
         }
@@ -60,6 +62,18 @@ class Program
             {
                 Console.WriteLine($"{input}: not found");
             }
+        }
+    }
+
+    private static void ExecuteExternalProgram(string command, string[] args)
+    {
+        if (IsInPath(command, out _))
+        {
+            Process.Start(command, args).WaitForExit();
+        }
+        else
+        {
+            Console.WriteLine($"{command}: command not found");
         }
     }
 
