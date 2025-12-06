@@ -52,10 +52,34 @@ class Program
             {
                 Console.WriteLine($"{input} is a shell builtin");
             }
+            else if (IsInPath(input, out var fullPath))
+            {
+                Console.WriteLine($"{input} is {fullPath}");
+            }
             else
             {
                 Console.WriteLine($"{input}: not found");
             }
         }
+    }
+
+
+    private static bool IsInPath(string executable, out string fullPath)
+    {
+        const UnixFileMode ExecuteMods = UnixFileMode.UserExecute | UnixFileMode.GroupExecute | UnixFileMode.OtherExecute;
+
+        fullPath = string.Empty;
+        var paths = Environment.GetEnvironmentVariable("PATH")?.Split(Path.PathSeparator) ?? [];
+
+        foreach (var path in paths)
+        {
+            fullPath = Path.Combine(path, executable);
+            if (File.Exists(fullPath) && (File.GetUnixFileMode(fullPath) & ExecuteMods) != 0)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
