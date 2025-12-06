@@ -8,6 +8,7 @@ internal static class CommandParser
 {
     private const char SingleQuote = '\'';
     private const char DoubleQuote = '\"';
+    private const char Backslash = '\\';
 
     public static ICommand? Parse(string input)
     {
@@ -42,7 +43,7 @@ internal static class CommandParser
                     HandleWhiteSpace(input, ref idx, sb, result);
                     break;
                 default:
-                    HandleNormalChar(input, ref idx, sb, c);
+                    HandleNormalChar(input, ref idx, sb);
                     break;
             }
         }
@@ -80,12 +81,16 @@ internal static class CommandParser
         }
     }
 
-    private static void HandleNormalChar(string input, ref int idx, StringBuilder sb, char c)
+    private static void HandleNormalChar(string input, ref int idx, StringBuilder sb)
     {
-        sb.Append(c);
-        while (idx < input.Length && input[idx] != SingleQuote && input[idx] != DoubleQuote && !char.IsWhiteSpace(input[idx]))
+        --idx;
+        do
         {
-            sb.Append(input[idx++]);
+            if (input[idx] != Backslash || ++idx < input.Length)
+            {
+                sb.Append(input[idx++]);
+            }
         }
+        while (idx < input.Length && input[idx] != SingleQuote && input[idx] != DoubleQuote && !char.IsWhiteSpace(input[idx]));
     }
 }
