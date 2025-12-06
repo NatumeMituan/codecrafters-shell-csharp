@@ -6,6 +6,9 @@ namespace Codecrafters.Shell;
 
 internal static class CommandParser
 {
+    private const char SingleQuote = '\'';
+    private const char DoubleQuote = '\"';
+
     public static ICommand? Parse(string input)
     {
         var inputs = Split(input);
@@ -25,50 +28,64 @@ internal static class CommandParser
     {
         var result = new List<string>();
         var sb = new StringBuilder();
-        bool inSingleQuotes = false;
-        for (int i = 0; i < input.Length; ++i)
-        {
-            if (input[i] == '\'')
-            {
-                if (i + 1 < input.Length && input[i + 1] == '\'')
-                {
-                    ++i;
-                    continue;
-                }
+        int idx = 0;
 
-                if (inSingleQuotes)
-                {
-                    inSingleQuotes = false;
-                    if (sb.Length > 0)
-                    {
-                        result.Add(sb.ToString());
-                        sb.Clear();
-                    }
-                }
-                else
-                {
-                    inSingleQuotes = true;
-                }
-            }
-            else if (input[i] == ' ' && !inSingleQuotes)
+        while (idx < input.Length)
+        {
+            var c = input[idx++];
+            switch (c)
             {
-                if (sb.Length > 0)
-                {
-                    result.Add(sb.ToString());
-                    sb.Clear();
-                }
-            }
-            else
-            {
-                sb.Append(input[i]);
+                case SingleQuote or DoubleQuote:
+                    HandleQuote(input, ref idx, sb, c);
+                    break;
+                case char ch when char.IsWhiteSpace(ch):
+                    HandleWhiteSpace(input, ref idx, sb, result);
+                    break;
+                default:
+                    HandleNormalChar(input, ref idx, sb, c);
+                    break;
             }
         }
 
         if (sb.Length > 0)
         {
             result.Add(sb.ToString());
+            sb.Clear();
         }
 
         return [.. result];
+    }
+
+    private static void HandleQuote(string input, ref int idx, StringBuilder sb, char quote)
+    {
+        while (idx < input.Length && input[idx] != quote)
+        {
+            sb.Append(input[idx++]);
+        }
+
+        idx++;
+    }
+
+    private static void HandleWhiteSpace(string input, ref int idx, StringBuilder sb, List<string> result)
+    {
+        if (sb.Length > 0)
+        {
+            result.Add(sb.ToString());
+            sb.Clear();
+        }
+
+        while (idx < input.Length && char.IsWhiteSpace(input[idx]))
+        {
+            idx++;
+        }
+    }
+
+    private static void HandleNormalChar(string input, ref int idx, StringBuilder sb, char c)
+    {
+        sb.Append(c);
+        while (idx < input.Length && input[idx] != SingleQuote && input[idx] != DoubleQuote && !char.IsWhiteSpace(input[idx]))
+        {
+            sb.Append(input[idx++]);
+        }
     }
 }
