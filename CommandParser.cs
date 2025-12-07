@@ -61,6 +61,14 @@ internal static class CommandParser
     {
         while (idx < input.Length && input[idx] != quote)
         {
+            if (quote == DoubleQuote
+                && input[idx] == Backslash
+                && idx + 1 < input.Length
+                && (input[idx + 1] == DoubleQuote || input[idx + 1] == Backslash))
+            {
+                idx++;
+            }
+
             sb.Append(input[idx++]);
         }
 
@@ -86,10 +94,12 @@ internal static class CommandParser
         --idx;
         do
         {
-            if (input[idx] != Backslash || ++idx < input.Length)
+            if (input[idx] == Backslash && idx + 1 < input.Length)
             {
-                sb.Append(input[idx++]);
+                idx++;
             }
+
+            sb.Append(input[idx++]);
         }
         while (idx < input.Length && input[idx] != SingleQuote && input[idx] != DoubleQuote && !char.IsWhiteSpace(input[idx]));
     }
