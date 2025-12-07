@@ -18,6 +18,7 @@ internal static class CommandParser
         var args = inputs[1..];
 
         GetOutputRedirect(Console.Out, out var stdout, ref args, a => a == ">" || a == "1>");
+        GetOutputRedirect(stdout, out stdout, ref args, a => a == ">>" || a == "1>>", true);
         GetOutputRedirect(Console.Error, out var stderr, ref args, a => a == "2>");
 
         var io = new CommandIO(args, stdout, stderr);
@@ -108,13 +109,13 @@ internal static class CommandParser
         while (idx < input.Length && input[idx] != SingleQuote && input[idx] != DoubleQuote && !char.IsWhiteSpace(input[idx]));
     }
 
-    private static void GetOutputRedirect(TextWriter defaultWriter, out TextWriter textWriter, ref string[] args, Predicate<string> predicate)
+    private static void GetOutputRedirect(TextWriter defaultWriter, out TextWriter textWriter, ref string[] args, Predicate<string> predicate, bool append = false)
     {
         textWriter = defaultWriter;
         int idx = Array.FindIndex(args, predicate);
         if (idx >= 0 && idx < args.Length - 1)
         {
-            textWriter = new StreamWriter(File.OpenWrite(args[idx + 1]));
+            textWriter = new StreamWriter(args[idx + 1], append);
             args = args[..idx];
         }
     }
