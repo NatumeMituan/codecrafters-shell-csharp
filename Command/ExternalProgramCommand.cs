@@ -10,7 +10,11 @@ internal class ExternalProgramCommand(CommandIO io, string command) : AbstractCo
         {
             var process = new Process()
             {
-                StartInfo = new ProcessStartInfo(command, io.Args) { RedirectStandardOutput = true }
+                StartInfo = new ProcessStartInfo(command, io.Args)
+                {
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                }
             };
 
             process.OutputDataReceived += (sender, e) =>
@@ -21,8 +25,17 @@ internal class ExternalProgramCommand(CommandIO io, string command) : AbstractCo
                 }
             };
 
+            process.ErrorDataReceived += (sender, e) =>
+            {
+                if (e.Data is not null)
+                {
+                    io.Stderr.WriteLine(e.Data);
+                }
+            };
+
             process.Start();
             process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
             process.WaitForExit();
         }
         else
