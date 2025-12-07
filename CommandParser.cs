@@ -20,6 +20,7 @@ internal static class CommandParser
         GetOutputRedirect(Console.Out, out var stdout, ref args, a => a == ">" || a == "1>");
         GetOutputRedirect(stdout, out stdout, ref args, a => a == ">>" || a == "1>>", true);
         GetOutputRedirect(Console.Error, out var stderr, ref args, a => a == "2>");
+        GetOutputRedirect(stderr, out stderr, ref args, a => a == "2>>", true);
 
         var io = new CommandIO(args, stdout, stderr);
         if (!BuiltInCommands.TryGetValue(command, out var commandFactory))
