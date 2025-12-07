@@ -1,8 +1,8 @@
 ﻿namespace Codecrafters.Shell.Command;
 
-internal class ExitCommand : ICommand
+internal class ExitCommand(CommandIO io) : AbstractCommand(io)
 {
-    public void Execute()
+    public override void Execute()
     {
         Environment.Exit(0);
     }

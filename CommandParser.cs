@@ -10,19 +10,23 @@ internal static class CommandParser
     private const char DoubleQuote = '\"';
     private const char Backslash = '\\';
 
-    public static ICommand? Parse(string input)
+    public static AbstractCommand? Parse(string input)
     {
         var inputs = Split(input);
 
         var command = inputs[0];
         var args = inputs[1..];
 
+        GetOutputRedirect(Console.Out, out var stdout, ref args, a => a == ">" || a == "1>");
+        GetOutputRedirect(Console.Error, out var stderr, ref args, a => a == "2>");
+
+        var io = new CommandIO(args, stdout, stderr);
         if (!BuiltInCommands.TryGetValue(command, out var commandFactory))
         {
-            commandFactory = (command, args) => new ExternalProgramCommand(command, args);
+            commandFactory = (command, io) => new ExternalProgramCommand(io, command);
         }
 
-        return commandFactory(command, args);
+        return commandFactory(command, io);
     }
 
     private static string[] Split(string input)
@@ -102,5 +106,16 @@ internal static class CommandParser
             sb.Append(input[idx++]);
         }
         while (idx < input.Length && input[idx] != SingleQuote && input[idx] != DoubleQuote && !char.IsWhiteSpace(input[idx]));
+    }
+
+    private static void GetOutputRedirect(TextWriter defaultWriter, out TextWriter textWriter, ref string[] args, Predicate<string> predicate)
+    {
+        textWriter = defaultWriter;
+        int idx = Array.FindIndex(args, predicate);
+        if (idx >= 0 && idx < args.Length - 1)
+        {
+            textWriter = new StreamWriter(File.OpenWrite(args[idx + 1]));
+            args = args[..idx];
+        }
     }
 }

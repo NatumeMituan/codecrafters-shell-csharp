@@ -10,7 +10,8 @@ class Program
             var input = Console.ReadLine();
             if (!string.IsNullOrEmpty(input))
             {
-                CommandParser.Parse(input)?.Execute();
+                using var command = CommandParser.Parse(input);
+                command?.Execute();
             }
         }
     }

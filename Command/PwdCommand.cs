@@ -1,10 +1,10 @@
 ﻿namespace Codecrafters.Shell.Command;
 
-internal class PwdCommand : ICommand
+internal class PwdCommand(CommandIO io) : AbstractCommand(io)
 {
-    public void Execute()
+    public override void Execute()
     {
         var output = Environment.CurrentDirectory;
-        Console.WriteLine(output);
+        io.Stdout.WriteLine(output);
     }
 }

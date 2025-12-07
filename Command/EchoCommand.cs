@@ -1,10 +1,10 @@
 ﻿namespace Codecrafters.Shell.Command;
 
-internal class EchoCommand(string[] args) : ICommand
+internal class EchoCommand(CommandIO io) : AbstractCommand(io)
 {
-    public void Execute()
+    public override void Execute()
     {
-        var output = string.Join(' ', args);
-        Console.WriteLine(output);
+        var output = string.Join(' ', io.Args);
+        io.Stdout.WriteLine(output);
     }
 }

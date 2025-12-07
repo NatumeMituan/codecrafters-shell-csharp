@@ -1,22 +1,22 @@
 ﻿namespace Codecrafters.Shell.Command;
 
-internal class TypeCommand(string[] args) : ICommand
+internal class TypeCommand(CommandIO io) : AbstractCommand(io)
 {
-    public void Execute()
+    public override void Execute()
     {
-        foreach (var arg in args)
+        foreach (var arg in io.Args)
         {
             if (arg.IsBuiltInCommand())
             {
-                Console.WriteLine($"{arg} is a shell builtin");
+                io.Stdout.WriteLine($"{arg} is a shell builtin");
             }
             else if (arg.TryGetFullPathOfExecuatable(out var fullPath))
             {
-                Console.WriteLine($"{arg} is {fullPath}");
+                io.Stdout.WriteLine($"{arg} is {fullPath}");
             }
             else
             {
-                Console.WriteLine($"{arg}: not found");
+                io.Stderr.WriteLine($"{arg}: not found");
             }
         }
     }

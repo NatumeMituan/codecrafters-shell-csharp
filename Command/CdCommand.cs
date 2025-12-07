@@ -1,12 +1,12 @@
 ﻿namespace Codecrafters.Shell.Command;
 
-internal class CdCommand(string[] args) : ICommand
+internal class CdCommand(CommandIO io) : AbstractCommand(io)
 {
-    public void Execute()
+    public override void Execute()
     {
-        if (args.Length > 0)
+        if (io.Args.Length > 0)
         {
-            var path = args[0];
+            var path = io.Args[0];
             if (path == "~")
             {
                 Environment.CurrentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
@@ -20,7 +20,7 @@ internal class CdCommand(string[] args) : ICommand
             }
             else
             {
-                Console.WriteLine($"cd: {path}: No such file or directory");
+                io.Stderr.WriteLine($"cd: {path}: No such file or directory");
             }
         }
     }
