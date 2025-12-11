@@ -1,6 +1,6 @@
 ﻿namespace Codecrafters.Shell.Command;
 
-internal class CommandIO(string[] args, TextWriter stdout, TextWriter stderr) : IDisposable
+internal sealed class CommandIO(string[] args, TextWriter stdout, TextWriter stderr) : IDisposable
 {
     private bool disposed;
 
@@ -25,14 +25,7 @@ internal class CommandIO(string[] args, TextWriter stdout, TextWriter stderr) : 
     {
         if (!ReferenceEquals(writer, consoleWriter))
         {
-            try
-            {
-                writer.Dispose();
-            }
-            catch
-            {
-            }
+            writer.Dispose();
         }
     }
-
 }

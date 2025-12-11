@@ -7,6 +7,12 @@ internal abstract class AbstractCommand(CommandIO io) : IDisposable
 
     public void Dispose()
     {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
         if (disposed)
         {
             return;
