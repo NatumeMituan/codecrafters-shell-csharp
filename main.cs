@@ -1,3 +1,4 @@
+using Codecrafters.Shell.Completion;
 using Codecrafters.Shell.Parser;
 
 namespace Codecrafters.Shell;
@@ -9,8 +10,7 @@ public static class Program
     {
         while (true)
         {
-            Console.Write("$ ");
-            var input = Console.ReadLine();
+            var input = LineReader.ReadLine("$ ");
             if (!string.IsNullOrEmpty(input))
             {
                 using var command = CommandParser.Parse(input);
