@@ -6,7 +6,7 @@ internal class ExternalProgramCommand(CommandIO io, string command) : AbstractCo
 {
     public override void Execute()
     {
-        if (command.TryGetFullPathOfExecuatable(out _))
+        if (command.TryFindInPath(out _))
         {
             var process = new Process()
             {

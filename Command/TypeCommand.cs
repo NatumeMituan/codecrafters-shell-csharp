@@ -10,7 +10,7 @@ internal class TypeCommand(CommandIO io) : AbstractCommand(io)
             {
                 io.Stdout.WriteLine($"{arg} is a shell builtin");
             }
-            else if (arg.TryGetFullPathOfExecuatable(out var fullPath))
+            else if (arg.TryFindInPath(out var fullPath))
             {
                 io.Stdout.WriteLine($"{arg} is {fullPath}");
             }
