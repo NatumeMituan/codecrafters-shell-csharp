@@ -27,6 +27,10 @@ internal static class LineReader
                     var completion = $"{command[currentLine.Length..]} ";
                     Write(line, completion);
                 }
+                else
+                {
+                    Console.Write('\x07'); // Bell character
+                }
             }
             else if (!char.IsControl(keyInfo.KeyChar))
             {
