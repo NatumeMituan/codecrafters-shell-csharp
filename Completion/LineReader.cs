@@ -6,12 +6,15 @@ internal static class LineReader
 {
     public static string ReadLine(string prompt)
     {
+        const char BellCharacter = '\x07';
         Console.Write(prompt);
         var line = new StringBuilder();
+        bool wasMultiCompletions = false;
         ConsoleKeyInfo keyInfo;
 
         do
         {
+            bool isMultiCompletions = false;
             keyInfo = Console.ReadKey(intercept: true);
             if (keyInfo.Key == ConsoleKey.Backspace && line.Length > 0)
             {
@@ -21,15 +24,26 @@ internal static class LineReader
             else if (keyInfo.Key == ConsoleKey.Tab)
             {
                 var currentLine = line.ToString();
-                var command = CompletionProvider.GetCompletions(currentLine).FirstOrDefault();
-                if (command != null)
+                var commands = CompletionProvider.GetCompletions(currentLine).ToList();
+                if (wasMultiCompletions)
                 {
-                    var completion = $"{command[currentLine.Length..]} ";
+                    Console.WriteLine();
+                    Console.WriteLine(string.Join("  ", commands.OrderBy(c => c)));
+                    Console.Write($"{prompt}{line}");
+                }
+                else if (commands.Count > 1)
+                {
+                    isMultiCompletions = true;
+                    Console.Write(BellCharacter);
+                }
+                else if (commands.Count == 1)
+                {
+                    var completion = $"{commands[0][currentLine.Length..]} ";
                     Write(line, completion);
                 }
                 else
                 {
-                    Console.Write('\x07'); // Bell character
+                    Console.Write(BellCharacter);
                 }
             }
             else if (!char.IsControl(keyInfo.KeyChar))
@@ -37,6 +51,8 @@ internal static class LineReader
                 line.Append(keyInfo.KeyChar);
                 Console.Write(keyInfo.KeyChar);
             }
+
+            wasMultiCompletions = isMultiCompletions;
         } while (keyInfo.Key != ConsoleKey.Enter);
 
         Console.WriteLine();
