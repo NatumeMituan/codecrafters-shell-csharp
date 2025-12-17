@@ -6,9 +6,9 @@ internal static class CompletionProvider
 {
     private static readonly Trie commandTrie = BuildCompletionTrie();
 
-    public static IEnumerable<string> GetCompletions(string prefix)
+    public static List<string> GetCompletions(string prefix)
     {
-        return commandTrie.GetWordsWithPrefix(prefix);
+        return [.. commandTrie.GetWordsWithPrefix(prefix)];
     }
 
     private static Trie BuildCompletionTrie()

@@ -1,4 +1,5 @@
-﻿namespace Codecrafters.Shell.Completion;
+﻿
+namespace Codecrafters.Shell.Completion;
 
 internal class Trie
 {

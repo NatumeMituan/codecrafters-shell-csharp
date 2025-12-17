@@ -24,26 +24,36 @@ internal static class LineReader
             else if (keyInfo.Key == ConsoleKey.Tab)
             {
                 var currentLine = line.ToString();
-                var commands = CompletionProvider.GetCompletions(currentLine).ToList();
-                if (wasMultiCompletions)
+                var completions = CompletionProvider.GetCompletions(currentLine);
+                var longestCommonPrefix = GetLongestCommonPrefix(currentLine.Length, completions);
+
+                if (completions.Count == 0)
                 {
-                    Console.WriteLine();
-                    Console.WriteLine(string.Join("  ", commands.OrderBy(c => c)));
-                    Console.Write($"{prompt}{line}");
-                }
-                else if (commands.Count > 1)
-                {
-                    isMultiCompletions = true;
                     Console.Write(BellCharacter);
                 }
-                else if (commands.Count == 1)
+                else if (completions.Count == 1)
                 {
-                    var completion = $"{commands[0][currentLine.Length..]} ";
+                    var completion = $"{completions[0][currentLine.Length..]} ";
                     Write(line, completion);
                 }
                 else
                 {
-                    Console.Write(BellCharacter);
+                    if (wasMultiCompletions)
+                    {
+                        Console.WriteLine();
+                        Console.WriteLine(string.Join("  ", completions.OrderBy(c => c)));
+                        Console.Write($"{prompt}{line}");
+                    }
+                    else if (longestCommonPrefix?.Length > currentLine.Length)
+                    {
+                        var completion = longestCommonPrefix[currentLine.Length..];
+                        Write(line, completion);
+                    }
+                    else
+                    {
+                        isMultiCompletions = true;
+                        Console.Write(BellCharacter);
+                    }
                 }
             }
             else if (!char.IsControl(keyInfo.KeyChar))
@@ -63,5 +73,30 @@ internal static class LineReader
     {
         line.Append(value);
         Console.Write(value);
+    }
+
+    private static string? GetLongestCommonPrefix(int prefixLength, List<string> completions)
+    {
+        if (completions.Count == 0)
+        {
+            return null;
+        }
+
+        if (completions.Count == 1)
+        {
+            return completions[0];
+        }
+
+        int l = completions.Min(c => c.Length);
+        for (int i = prefixLength; i < l; ++i)
+        {
+            char currentChar = completions[0][i];
+            if (completions.Any(c => c[i] != currentChar))
+            {
+                return completions[0][..i];
+            }
+        }
+
+        return completions[0][..l];
     }
 }
