@@ -21,7 +21,7 @@ internal static class LineReader
             else if (keyInfo.Key == ConsoleKey.Tab)
             {
                 var currentLine = line.ToString();
-                var command = Constants.BuiltInCommands.Keys.FirstOrDefault(c => c.StartsWith(currentLine));
+                var command = CompletionProvider.GetCompletions(currentLine).FirstOrDefault();
                 if (command != null)
                 {
                     var completion = $"{command[currentLine.Length..]} ";

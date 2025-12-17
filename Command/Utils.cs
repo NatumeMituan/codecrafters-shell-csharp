@@ -24,12 +24,10 @@ internal static class Utils
         }
 
         return false;
-    }
 
-    private static bool IsExecutable(string fullPath)
-    {
-        const UnixFileMode ExecuteMods = UnixFileMode.UserExecute | UnixFileMode.GroupExecute | UnixFileMode.OtherExecute;
-        return OperatingSystem.IsWindows() || (File.GetUnixFileMode(fullPath) & ExecuteMods) != 0;
+        static bool IsExecutable(string fullPath) =>
+            OperatingSystem.IsWindows() ||
+            (File.GetUnixFileMode(fullPath) & ExecuteMods) != 0;
     }
 
     private static IEnumerable<string> GetFileNameCandidates(string command)
@@ -42,12 +40,9 @@ internal static class Utils
             yield break;
         }
 
-        var extensions = Environment.GetEnvironmentVariable("PATHEXT")?
-            .Split(';', StringSplitOptions.RemoveEmptyEntries) ?? [];
-
-        foreach (var ext in extensions)
+        foreach (var ext in ExecutableExtensions)
         {
-            yield return command + ext;
+            yield return $"{command}{ext.ToLowerInvariant()}";
         }
     }
 }
