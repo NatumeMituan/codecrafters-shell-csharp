@@ -1,12 +1,48 @@
 ﻿namespace Codecrafters.Shell.Command;
 
-internal sealed class CommandIO(string[] args, TextWriter stdout, TextWriter stderr) : IDisposable
+internal sealed class CommandIO : IDisposable
 {
     private bool disposed;
+    private TextReader stdin = Console.In;
+    private TextWriter stdout = Console.Out;
+    private TextWriter stderr = Console.Error;
 
-    public string[] Args { get; } = args;
-    public TextWriter Stdout { get; } = stdout;
-    public TextWriter Stderr { get; } = stderr;
+    public string[] Args { get; set; } = [];
+
+    public static CommandIO Default => new();
+
+    public TextReader Stdin
+    {
+        get => this.stdin;
+        set
+        {
+            var current = this.stdin;
+            DisposeIDisposable(current, Console.In);
+            this.stdin = value;
+        }
+    }
+
+    public TextWriter Stdout
+    {
+        get => this.stdout;
+        set
+        {
+            var current = this.stdout;
+            DisposeIDisposable(current, Console.Out);
+            this.stdout = value;
+        }
+    }
+
+    public TextWriter Stderr
+    {
+        get => this.stderr;
+        set
+        {
+            var current = this.stderr;
+            DisposeIDisposable(current, Console.Error);
+            this.stderr = value;
+        }
+    }
 
     public void Dispose()
     {
@@ -17,15 +53,18 @@ internal sealed class CommandIO(string[] args, TextWriter stdout, TextWriter std
 
         disposed = true;
 
-        DisposeWriter(Stdout, Console.Out);
-        DisposeWriter(Stderr, Console.Error);
+        DisposeIDisposable(Stdin, Console.Error);
+        DisposeIDisposable(Stdout, Console.Out);
+        DisposeIDisposable(Stderr, Console.Error);
     }
 
-    private static void DisposeWriter(TextWriter writer, TextWriter consoleWriter)
+    private static void DisposeIDisposable(
+        IDisposable? objectToDispose,
+        IDisposable objectToCompare)
     {
-        if (!ReferenceEquals(writer, consoleWriter))
+        if (objectToDispose != null && !ReferenceEquals(objectToDispose, objectToCompare))
         {
-            writer.Dispose();
+            objectToDispose.Dispose();
         }
     }
 }

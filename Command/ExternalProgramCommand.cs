@@ -8,34 +8,64 @@ internal class ExternalProgramCommand(CommandIO io, string command) : AbstractCo
     {
         if (command.TryFindInPath(out _))
         {
+            bool redirectStandardInput = !ReferenceEquals(io.Stdin, Console.In);
+            bool redirectStandardOutput = !ReferenceEquals(io.Stdout, Console.Out);
+            bool redirectStandardError = !ReferenceEquals(io.Stderr, Console.Error);
+
             var process = new Process()
             {
                 StartInfo = new ProcessStartInfo(command, io.Args)
                 {
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
+                    RedirectStandardInput = redirectStandardInput,
+                    RedirectStandardOutput = redirectStandardOutput,
+                    RedirectStandardError = redirectStandardError,
                 }
             };
 
-            process.OutputDataReceived += (sender, e) =>
+            if (redirectStandardOutput)
             {
-                if (e.Data is not null)
+                process.OutputDataReceived += (sender, e) =>
                 {
-                    io.Stdout.WriteLine(e.Data);
-                }
-            };
+                    if (e.Data is not null)
+                    {
+                        io.Stdout.WriteLine(e.Data);
+                    }
+                };
+            }
 
-            process.ErrorDataReceived += (sender, e) =>
+            if (redirectStandardError)
             {
-                if (e.Data is not null)
+                process.ErrorDataReceived += (sender, e) =>
                 {
-                    io.Stderr.WriteLine(e.Data);
-                }
-            };
+                    if (e.Data is not null)
+                    {
+                        io.Stderr.WriteLine(e.Data);
+                    }
+                };
+            }
 
             process.Start();
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
+
+            if (redirectStandardOutput)
+            {
+                process.BeginOutputReadLine();
+            }
+
+            if (redirectStandardError)
+            {
+                process.BeginErrorReadLine();
+            }
+
+            if (redirectStandardInput)
+            {
+                while (io.Stdin.ReadLine() is string line)
+                {
+                    process.StandardInput.WriteLine(line);
+                }
+
+                process.StandardInput.Close();
+            }
+
             process.WaitForExit();
         }
         else

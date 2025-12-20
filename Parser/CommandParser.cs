@@ -5,20 +5,28 @@ namespace Codecrafters.Shell.Parser;
 
 internal static class CommandParser
 {
-    public static AbstractCommand? Parse(string input)
+    public static AbstractCommand Parse(List<string> tokens, CommandIO io)
     {
-        var tokens = Tokenizer.Tokenize(input);
         var command = tokens[0];
 
         var redirectionInfo = RedirectionParser.Parse(tokens[1..], out var args);
-        var stdout = redirectionInfo.StdoutFile != null ?
-            new StreamWriter(redirectionInfo.StdoutFile, redirectionInfo.AppendStdout) :
-            Console.Out;
-        var stderr = redirectionInfo.StderrFile != null ?
-            new StreamWriter(redirectionInfo.StderrFile, redirectionInfo.AppendStderr) :
-            Console.Error;
-        var io = new CommandIO(args, stdout, stderr);
+        io.Args = args;
 
+        if (redirectionInfo.StdoutFile != null)
+        {
+            io.Stdout = new StreamWriter(redirectionInfo.StdoutFile, redirectionInfo.AppendStdout);
+        }
+
+        if (redirectionInfo.StderrFile != null)
+        {
+            io.Stderr = new StreamWriter(redirectionInfo.StderrFile, redirectionInfo.AppendStderr);
+        }
+
+        return Build(command, io);
+    }
+
+    private static AbstractCommand Build(string command, CommandIO io)
+    {
         if (!BuiltInCommands.TryGetValue(command, out var commandFactory))
         {
             commandFactory = (command, io) => new ExternalProgramCommand(io, command);

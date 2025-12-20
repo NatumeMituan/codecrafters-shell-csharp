@@ -1,5 +1,4 @@
 using Codecrafters.Shell.Completion;
-using Codecrafters.Shell.Parser;
 
 namespace Codecrafters.Shell;
 
@@ -13,8 +12,7 @@ public static class Program
             var input = LineReader.ReadLine("$ ");
             if (!string.IsNullOrEmpty(input))
             {
-                using var command = CommandParser.Parse(input);
-                command?.Execute();
+                Shell.Execute(input);
             }
         }
     }
