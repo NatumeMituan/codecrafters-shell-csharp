@@ -8,6 +8,8 @@ internal static class Shell
 {
     public static void Execute(string input)
     {
+        HistoryCommand.AddHistory(input);
+
         var tokens = Tokenizer.Tokenize(input);
         if (tokens.Contains("|"))
         {

@@ -8,6 +8,12 @@ internal static class Utils
 
     public static bool TryFindInPath(this string command, out string fullPath)
     {
+        if (command.StartsWith(@"./"))
+        {
+            fullPath = command;
+            return true;
+        }
+
         fullPath = string.Empty;
         var dirs = Environment.GetEnvironmentVariable("PATH")?.Split(Path.PathSeparator) ?? [];
 

@@ -19,6 +19,7 @@ internal static class Constants
         ["cd"] = (command, io) => new CdCommand(io),
         ["echo"] = (command, io) => new EchoCommand(io),
         ["exit"] = (command, io) => new ExitCommand(io),
+        ["history"] = (command, io) => new HistoryCommand(io),
         ["pwd"] = (command, io) => new PwdCommand(io),
         ["type"] = (command, io) => new TypeCommand(io),
     };

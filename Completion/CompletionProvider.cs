@@ -14,7 +14,7 @@ internal static class CompletionProvider
     private static Trie BuildCompletionTrie()
     {
         var trie = new Trie();
-        foreach (var command in Constants.BuiltInCommands.Keys)
+        foreach (var command in BuiltInCommands.Keys)
         {
             trie.Add(command);
         }
