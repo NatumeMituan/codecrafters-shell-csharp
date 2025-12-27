@@ -2,6 +2,13 @@
 
 internal class HistoryCommand(CommandIO io) : AbstractCommand(io)
 {
+    private static int appendedHistoryCount = 0;
+
+    private static void UpdateAppendedHistoryCount()
+    {
+        appendedHistoryCount = Shell.History.Count;
+    }
+
     public override void Execute()
     {
         if (io.Args.Length == 2)
@@ -14,6 +21,11 @@ internal class HistoryCommand(CommandIO io) : AbstractCommand(io)
             else if (io.Args[0] == "-w")
             {
                 this.WriteToFile();
+                return;
+            }
+            else if (io.Args[0] == "-a" && File.Exists(io.Args[1]))
+            {
+                this.AppendToFile();
                 return;
             }
         }
@@ -47,5 +59,17 @@ internal class HistoryCommand(CommandIO io) : AbstractCommand(io)
         {
             writer.WriteLine(entry);
         }
+    }
+
+    private void AppendToFile()
+    {
+        using var writer = new StreamWriter(io.Args[1], true);
+
+        for (int i = appendedHistoryCount; i < Shell.History.Count; ++i)
+        {
+            writer.WriteLine(Shell.History[i]);
+        }
+
+        UpdateAppendedHistoryCount();
     }
 }
