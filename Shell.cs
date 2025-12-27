@@ -23,12 +23,26 @@ internal static class Shell
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Blocker Bug", "S2190:Loops and recursions should not be infinite", Justification = "By design")]
     public static void Run()
     {
+        LoadHistory();
         while (true)
         {
             var input = LineReader.ReadLine(Prompt, history);
             if (!string.IsNullOrEmpty(input))
             {
                 Execute(input);
+            }
+        }
+    }
+
+    private static void LoadHistory()
+    {
+        var histFile = Environment.GetEnvironmentVariable("HISTFILE");
+        if (File.Exists(histFile))
+        {
+            using var reader = new StreamReader(histFile);
+            while (reader.ReadLine() is string line)
+            {
+                AppendHistory(line);
             }
         }
     }
