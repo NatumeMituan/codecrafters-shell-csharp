@@ -12,6 +12,14 @@ internal static class Shell
 
     public static IReadOnlyList<string> History => history;
 
+    public static void AppendHistory(string command)
+    {
+        if (!string.IsNullOrEmpty(command))
+        {
+            history.Add(command);
+        }
+    }
+
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Blocker Bug", "S2190:Loops and recursions should not be infinite", Justification = "By design")]
     public static void Run()
     {
@@ -27,7 +35,7 @@ internal static class Shell
 
     public static void Execute(string input)
     {
-        history.Add(input);
+        AppendHistory(input);
 
         var tokens = Tokenizer.Tokenize(input);
         if (tokens.Contains("|"))
