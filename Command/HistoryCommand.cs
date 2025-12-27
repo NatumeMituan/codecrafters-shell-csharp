@@ -2,15 +2,9 @@
 
 internal class HistoryCommand(CommandIO io) : AbstractCommand(io)
 {
-    private static readonly List<string> history = [];
-
-    public static void AddHistory(string line)
-    {
-        history.Add(line);
-    }
-
     public override void Execute()
     {
+        var history = Shell.History;
         int cnt = history.Count;
         if (io.Args.Length > 0 && int.TryParse(io.Args[0], out int n) && n > 0)
         {

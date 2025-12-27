@@ -7,11 +7,15 @@ internal static class LineReader
     private const char BellCharacter = '\x07';
     private static readonly StringBuilder Line = new();
     private static readonly Context ctx = new();
+    private static IReadOnlyList<string> history = [];
+    private static int historyIndex;
 
-    public static string ReadLine(string prompt)
+    public static string ReadLine(string prompt, IReadOnlyList<string> history)
     {
         Line.Clear();
         ctx.WasMultiCompletions = false;
+        LineReader.history = history;
+        historyIndex = history.Count;
 
         Console.Write(prompt);
         ConsoleKeyInfo keyInfo;
@@ -28,6 +32,14 @@ internal static class LineReader
             else if (keyInfo.Key == ConsoleKey.Tab)
             {
                 HandleTab(prompt);
+            }
+            else if (keyInfo.Key == ConsoleKey.UpArrow)
+            {
+                HandleUpArrow();
+            }
+            else if (keyInfo.Key == ConsoleKey.DownArrow)
+            {
+                HandleDownArrow();
             }
             else if (!char.IsControl(keyInfo.KeyChar))
             {
@@ -102,6 +114,36 @@ internal static class LineReader
     {
         Line.Append(c);
         Console.Write(c);
+    }
+
+    private static void HandleUpArrow()
+    {
+        if (history.Count > 0)
+        {
+            while (Line.Length > 0)
+            {
+                HandleBackspace();
+            }
+
+            historyIndex = (historyIndex + history.Count - 1) % history.Count;
+            var previousHistory = history[historyIndex];
+            Write(previousHistory);
+        }
+    }
+
+    private static void HandleDownArrow()
+    {
+        if (history.Count > 0)
+        {
+            while (Line.Length > 0)
+            {
+                HandleBackspace();
+            }
+
+            historyIndex = (historyIndex + 1) % history.Count;
+            var nextHistory = history[historyIndex];
+            Write(nextHistory);
+        }
     }
 
     private static void Write(string value)

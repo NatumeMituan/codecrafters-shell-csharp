@@ -1,4 +1,5 @@
 ﻿using Codecrafters.Shell.Command;
+using Codecrafters.Shell.Completion;
 using Codecrafters.Shell.Parser;
 using System.IO.Pipelines;
 
@@ -6,9 +7,27 @@ namespace Codecrafters.Shell;
 
 internal static class Shell
 {
+    private const string Prompt = "$ ";
+    private static readonly List<string> history = [];
+
+    public static IReadOnlyList<string> History => history;
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Blocker Bug", "S2190:Loops and recursions should not be infinite", Justification = "By design")]
+    public static void Run()
+    {
+        while (true)
+        {
+            var input = LineReader.ReadLine(Prompt, history);
+            if (!string.IsNullOrEmpty(input))
+            {
+                Execute(input);
+            }
+        }
+    }
+
     public static void Execute(string input)
     {
-        HistoryCommand.AddHistory(input);
+        history.Add(input);
 
         var tokens = Tokenizer.Tokenize(input);
         if (tokens.Contains("|"))
