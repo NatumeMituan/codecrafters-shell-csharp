@@ -11,7 +11,13 @@ internal class HistoryCommand(CommandIO io) : AbstractCommand(io)
 
     public override void Execute()
     {
-        for (int i = 0; i < history.Count; i++)
+        int cnt = history.Count;
+        if (io.Args.Length > 0 && int.TryParse(io.Args[0], out int n) && n > 0)
+        {
+            cnt = Math.Min(n, cnt);
+        }
+
+        for (int i = history.Count - cnt; i < history.Count; i++)
         {
             io.Stdout.WriteLine($"{i + 1}  {history[i]}");
         }
