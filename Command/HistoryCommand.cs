@@ -4,16 +4,18 @@ internal class HistoryCommand(CommandIO io) : AbstractCommand(io)
 {
     public override void Execute()
     {
-        if (io.Args.Length == 2 && io.Args[0] == "-r" && File.Exists(io.Args[1]))
+        if (io.Args.Length == 2)
         {
-            using var fs = File.OpenRead(io.Args[1]);
-            using var reader = new StreamReader(fs);
-            while (reader.ReadLine() is string line)
+            if (io.Args[0] == "-r" && File.Exists(io.Args[1]))
             {
-                Shell.AppendHistory(line);
+                this.ReadFromFile();
+                return;
             }
-
-            return;
+            else if (io.Args[0] == "-w")
+            {
+                this.WriteToFile();
+                return;
+            }
         }
 
         var history = Shell.History;
@@ -26,6 +28,24 @@ internal class HistoryCommand(CommandIO io) : AbstractCommand(io)
         for (int i = history.Count - cnt; i < history.Count; i++)
         {
             io.Stdout.WriteLine($"{i + 1}  {history[i]}");
+        }
+    }
+
+    private void ReadFromFile()
+    {
+        using var reader = new StreamReader(io.Args[1]);
+        while (reader.ReadLine() is string line)
+        {
+            Shell.AppendHistory(line);
+        }
+    }
+
+    private void WriteToFile()
+    {
+        using var writer = new StreamWriter(io.Args[1]);
+        foreach (var entry in Shell.History)
+        {
+            writer.WriteLine(entry);
         }
     }
 }
