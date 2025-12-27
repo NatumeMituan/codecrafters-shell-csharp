@@ -9,6 +9,7 @@ internal static class Shell
 {
     private const string Prompt = "$ ";
     private static readonly List<string> history = [];
+    private static int loadedHistoryCount = 0;
 
     public static IReadOnlyList<string> History => history;
 
@@ -17,6 +18,19 @@ internal static class Shell
         if (!string.IsNullOrEmpty(command))
         {
             history.Add(command);
+        }
+    }
+
+    public static void SaveHistory()
+    {
+        var histFile = Environment.GetEnvironmentVariable("HISTFILE");
+        if (!string.IsNullOrEmpty(histFile))
+        {
+            using var writer = new StreamWriter(histFile, true);
+            for (int i = loadedHistoryCount; i < history.Count; i++)
+            {
+                writer.WriteLine(history[i]);
+            }
         }
     }
 
@@ -42,6 +56,7 @@ internal static class Shell
             using var reader = new StreamReader(histFile);
             while (reader.ReadLine() is string line)
             {
+                ++loadedHistoryCount;
                 AppendHistory(line);
             }
         }
